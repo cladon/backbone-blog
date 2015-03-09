@@ -55,7 +55,23 @@
     </script>
 
     <script type="text/template" id="post-edit-template">
+        <form action=""></form>
+    </script>
 
+    <script type="text/template" id="login-template">
+        <div class="col-sm-8 col-sm-offset-2">
+            <form id="login-form" class="row">
+                <div class="form-group">
+                    <label for="identifier">Email or Username</label>
+                    <input type="text" class="form-control" id="identifier">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password">
+                </div>
+                <button type="submit" class="btn btn-primary">Log In</button>
+            </form>
+        </div>
     </script>
 
     <script src="/js/app.js"></script>
