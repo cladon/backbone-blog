@@ -6231,5 +6231,9 @@ label,
 .checkbox label {
   font-weight: 300;
 }
+textarea.form-control {
+  resize: vertical;
+  min-height: 200px;
+}
 
 /*# sourceMappingURL=app.css.map */

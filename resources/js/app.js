@@ -1,7 +1,7 @@
 var App = (function ($) {
-    function BlogApp(router, session) {
-        this.router = router;
-        this.session = session;
+    function BlogApp() {
+        this.router = new BlogRouter();
+        this.session = null;
 
         this.initialize();
 
@@ -15,14 +15,36 @@ var App = (function ($) {
 
         session: null,
 
+        message: null,
+
         initialize: function () {
             var that = this;
 
             $.ajaxSetup({cache: false});
 
-            $.ajaxPrefilter(function(options) {
+            $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
                 options.url = that.apiRoot + options.url;
+
+                jqXHR.setRequestHeader('X-CSRF-TOKEN', $('meta[name="csrf"]').attr('content'));
             });
+
+            this.message = $("#alert-msg");
+
+            Backbone.App = this;
+        },
+
+        showMessage: function(message, status) {
+            var that = this;
+            that.message.removeClass();
+
+            that.message.addClass('alert');
+            that.message.addClass('alert-' + status);
+            that.message.html(message);
+            that.message.show();
+
+            setTimeout(function() {
+                that.message.hide();
+            }, 10000)
         }
     };
 

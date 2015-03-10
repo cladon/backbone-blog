@@ -1,1 +1,1 @@
-var app = new App(new BlogRouter());
+var app = new App();

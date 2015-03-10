@@ -1,8 +1,8 @@
 var BlogRouter = Backbone.Router.extend({
     routes: {
         '': 'listPosts',
-        'post/:id': 'showPost',
         'post/new': 'editPost',
+        'post/:id': 'showPost',
         'post/:id/edit': 'editPost',
 
         'login': 'login'
@@ -13,7 +13,7 @@ var BlogRouter = Backbone.Router.extend({
     views: {},
 
     initialize: function() {
-        // this.handleRouteAuth();
+         // this.handleRouteAuth();
     },
 
     handleRouteAuth: function() {
@@ -38,6 +38,10 @@ var BlogRouter = Backbone.Router.extend({
             this.views.listPostView = new PostListView();
 
         this.views.listPostView.render();
+    },
+
+    showPost: function() {
+        console.log("show post");
     },
 
     editPost: function(id) {

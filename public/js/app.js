@@ -1,11 +1,11 @@
 var PostModel = Backbone.Model.extend({
-    urlRoot: '/posts'
+    urlRoot: 'posts'
 });
 
 var SessionModel = Backbone.Model.extend({
     defaults: {
         logged_in: false,
-        user_id: ''
+        user: null
     },
 
     initialize: function() {
@@ -21,9 +21,18 @@ var SessionModel = Backbone.Model.extend({
     },
 
     checkAuth: function(callback, args) {
-        var self = this;
-        self.fetch({
-            success: function(user) {
+        var that = this;
+
+        $.ajax({
+            url: that.url + 'login',
+            type: 'GET',
+            dataType: 'json',
+
+            success: function(res) {
+
+            },
+
+            error: function() {
 
             }
         });
@@ -37,17 +46,22 @@ var SessionModel = Backbone.Model.extend({
             contentType: 'application/json',
             dataType: 'json',
             type: 'POST',
-            beforeSend: function(xhr) {
-                var token = $('meta[name="csrf-token"]').attr('content');
-                if (token)
-                    xhr.setRequestHeader('X-CSRF-TOKEN', token);
-            },
             data: JSON.stringify(data),
             success: function(res) {
                 console.log(res);
             }
         });
     }
+});
+
+var UserModel = Backbone.Model.extend({
+
+    defaults: {
+        id: '',
+        username: '',
+        email: ''
+    }
+
 });
 
 var PostCollection = Backbone.Collection.extend({
@@ -67,6 +81,48 @@ var LoginView = Backbone.View.extend({
 
 var PostEditView = Backbone.View.extend({
     el: '#page',
+
+    events: {
+        'submit #post-form': 'handleFormSubmit',
+        'click #cancel-form': 'cancelView'
+    },
+
+    cancelView: function(e) {
+        e.preventDefault();
+
+        $('.form-action-trigger').prop("disabled", true);
+        Backbone.history.navigate('', true);
+    },
+
+    handleFormSubmit: function(e) {
+        e.preventDefault();
+        $('.form-action-trigger').prop("disabled", true);
+        var post = new PostModel();
+        post.save(this.getFormData('post-form'), {
+            success: function(model) {
+                Backbone.App.showMessage('<p>The post has been created</p>', 'info');
+                Backbone.history.navigate('post/' + model.get('id'), true);
+            },
+
+            error: function(model, response) {
+                if (response.status == 401) {
+                    Backbone.App.showMessage('<p>You are not logged in.</p>', 'danger');
+                    Backbone.history.navigate('', true);
+                }
+            }
+        });
+    },
+
+    getFormData: function(id) {
+        var data = {};
+
+        var inputs = $("#" + id).serializeArray();
+        $.each(inputs, function(i, input) {
+            data[input.name] = input.value;
+        });
+
+        return data;
+    },
 
     render: function(id) {
         var that = this;
@@ -97,7 +153,7 @@ var PostListView = Backbone.View.extend({
         var posts = new PostModel();
         posts.fetch({
             success: function(posts) {
-                that.$el.html(that.template(posts.models));
+                that.$el.html(that.template({posts: posts.models}));
             },
             error: function() {
                 that.$el.html(that.template([]));
@@ -105,15 +161,15 @@ var PostListView = Backbone.View.extend({
         })
     },
     template: function(data) {
-        return _.template($("#post-list-template").html())({posts: data});
+        return _.template($("#post-list-template").html())(data);
     }
 });
 
 var BlogRouter = Backbone.Router.extend({
     routes: {
         '': 'listPosts',
-        'post/:id': 'showPost',
         'post/new': 'editPost',
+        'post/:id': 'showPost',
         'post/:id/edit': 'editPost',
 
         'login': 'login'
@@ -124,7 +180,7 @@ var BlogRouter = Backbone.Router.extend({
     views: {},
 
     initialize: function() {
-        // this.handleRouteAuth();
+         // this.handleRouteAuth();
     },
 
     handleRouteAuth: function() {
@@ -151,6 +207,10 @@ var BlogRouter = Backbone.Router.extend({
         this.views.listPostView.render();
     },
 
+    showPost: function() {
+        console.log("show post");
+    },
+
     editPost: function(id) {
         if (this.views.editPostView == undefined)
             this.views.editPostView = new PostEditView();
@@ -160,9 +220,9 @@ var BlogRouter = Backbone.Router.extend({
 });
 
 var App = (function ($) {
-    function BlogApp(router, session) {
-        this.router = router;
-        this.session = session;
+    function BlogApp() {
+        this.router = new BlogRouter();
+        this.session = null;
 
         this.initialize();
 
@@ -176,19 +236,41 @@ var App = (function ($) {
 
         session: null,
 
+        message: null,
+
         initialize: function () {
             var that = this;
 
             $.ajaxSetup({cache: false});
 
-            $.ajaxPrefilter(function(options) {
+            $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
                 options.url = that.apiRoot + options.url;
+
+                jqXHR.setRequestHeader('X-CSRF-TOKEN', $('meta[name="csrf"]').attr('content'));
             });
+
+            this.message = $("#alert-msg");
+
+            Backbone.App = this;
+        },
+
+        showMessage: function(message, status) {
+            var that = this;
+            that.message.removeClass();
+
+            that.message.addClass('alert');
+            that.message.addClass('alert-' + status);
+            that.message.html(message);
+            that.message.show();
+
+            setTimeout(function() {
+                that.message.hide();
+            }, 10000)
         }
     };
 
     return BlogApp;
 })(jQuery);
-var app = new App(new BlogRouter());
+var app = new App();
 
 //# sourceMappingURL=app.js.map

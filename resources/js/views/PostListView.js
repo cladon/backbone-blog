@@ -6,7 +6,7 @@ var PostListView = Backbone.View.extend({
         var posts = new PostModel();
         posts.fetch({
             success: function(posts) {
-                that.$el.html(that.template(posts.models));
+                that.$el.html(that.template({posts: posts.models}));
             },
             error: function() {
                 that.$el.html(that.template([]));
@@ -14,6 +14,6 @@ var PostListView = Backbone.View.extend({
         })
     },
     template: function(data) {
-        return _.template($("#post-list-template").html())({posts: data});
+        return _.template($("#post-list-template").html())(data);
     }
 });

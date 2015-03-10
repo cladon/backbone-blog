@@ -24,6 +24,9 @@
     <div class="container">
         <h1>Laravel Backbone Blog</h1>
         <div style="margin-top:20px;"></div>
+
+        <div id="alert-msg"></div>
+
         <div id="page"></div>
     </div>
 
@@ -34,7 +37,7 @@
     <script src="http://backbonejs.org/backbone-min.js"></script>
 
     <script type="text/template" id="post-list-template">
-        <a href="#/new" class="btn btn-primary">New Post</a>
+        <a href="#/post/new" class="btn btn-primary">New Post</a>
         <hr/>
         <% if (posts == undefined || posts.length == 0) { %>
             <div class="alert alert-info">No posts yet.</div>
@@ -55,7 +58,21 @@
     </script>
 
     <script type="text/template" id="post-edit-template">
-        <form action=""></form>
+        <form action="" class="row" id="post-form">
+            <div class="form-group col-lg-8 col-lg-offset-2 col-sm-12">
+                <label for="title">Title</label>
+                <input type="text" id="title" class="form-control" name="title"/>
+            </div>
+            <div class="form-group col-lg-8 col-lg-offset-2 col-sm-12">
+                <label for="body">Post</label>
+                <textarea name="body" id="body" class="form-control"></textarea>
+            </div>
+
+            <div class="form-group col-lg-9 col-lg-offset-2 col-sm-12">
+                <button type="submit" class="btn btn-primary left form-action-trigger">Save</button>
+                <button id="cancel-form" class="btn btn-default form-action-trigger">Cancel</button>
+            </div>
+        </form>
     </script>
 
     <script type="text/template" id="login-template">

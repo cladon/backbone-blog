@@ -1,7 +1,7 @@
 var SessionModel = Backbone.Model.extend({
     defaults: {
         logged_in: false,
-        user_id: ''
+        user: null
     },
 
     initialize: function() {
@@ -17,9 +17,18 @@ var SessionModel = Backbone.Model.extend({
     },
 
     checkAuth: function(callback, args) {
-        var self = this;
-        self.fetch({
-            success: function(user) {
+        var that = this;
+
+        $.ajax({
+            url: that.url + 'login',
+            type: 'GET',
+            dataType: 'json',
+
+            success: function(res) {
+
+            },
+
+            error: function() {
 
             }
         });
@@ -33,11 +42,6 @@ var SessionModel = Backbone.Model.extend({
             contentType: 'application/json',
             dataType: 'json',
             type: 'POST',
-            beforeSend: function(xhr) {
-                var token = $('meta[name="csrf-token"]').attr('content');
-                if (token)
-                    xhr.setRequestHeader('X-CSRF-TOKEN', token);
-            },
             data: JSON.stringify(data),
             success: function(res) {
                 console.log(res);
